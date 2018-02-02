@@ -126,7 +126,7 @@ def _require_word_cloud():
 
 def start():
     check_area_name()
-    fetch_data(web_type=FindJobWebType.all, keywords=['iOS'], area='深圳', page_count=5)
+    fetch_data(web_type=WEBTYPE.all, keywords=['iOS'], area='深圳', page_count=5)
     jobs_data_analyse()
 
 

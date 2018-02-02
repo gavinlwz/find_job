@@ -9,7 +9,7 @@ import pandas as pd
 
 pd.set_option('expand_frame_repr', False)  # 列太多不换行
 
-class FindJobWebType(Enum):
+class WEBTYPE(Enum):
     _51job = '_51job'  # 51job
     zhilian = 'zhilian'  # 智联
     all = 3  # 所有
@@ -51,17 +51,17 @@ def check_area_name():
 
 
 
-def fetch_data( web_type=FindJobWebType.all, keywords=['iOS'], page_count=5, area='深圳'):
+def fetch_data( web_type=WEBTYPE.all, keywords=['iOS'], page_count=5, area='深圳'):
     if os.path.exists(config.jobs_data_path):
         os.remove(config.jobs_data_path)
         print('删除之前爬的数据')
 
-    if web_type == FindJobWebType._51job:
+    if web_type == WEBTYPE._51job:
         _fetch_data(web_type, keywords, page_count, area)
-    elif web_type == FindJobWebType.zhilian:
+    elif web_type == WEBTYPE.zhilian:
         _fetch_data(web_type, keywords, page_count, area)
-    elif web_type == FindJobWebType.all:
-        for type in list(FindJobWebType)[0: -1]:
+    elif web_type == WEBTYPE.all:
+        for type in list(WEBTYPE)[0: -1]:
             _fetch_data(type, keywords, page_count, area)
 
 def _fetch_data(web_type, keywords, page_count, area):
@@ -102,7 +102,7 @@ def fetch_job_introduce(web_type, keywords, page_count, area):
     decode_type = ""
     #根据不同网站设置不同的地址格式
     area_need = ""
-    if web_type == FindJobWebType._51job:
+    if web_type == WEBTYPE._51job:
         url = "http://search.51job.com/list/{}0000,000000" \
               ",0000,00,9,99,{},2,{}.html? lang=c&stype=1&postchannel=0000&workyear=99&" \
               "cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0" \
@@ -113,7 +113,7 @@ def fetch_job_introduce(web_type, keywords, page_count, area):
             result = f.read()
             dic = eval(result)
             area_need = '%02d' % dic[area]
-    elif web_type == FindJobWebType.zhilian:
+    elif web_type == WEBTYPE.zhilian:
         url = "http://sou.zhaopin.com/jobs/searchresult.ashx?jl={}&kw={}&isadv=0&sg=7e9e61449fd14593a5604fff81aec46a&p={}"
         decode_type = "utf-8"
     # 实际页数从1开始，所以+1
@@ -130,7 +130,7 @@ def fetch_companies(urls, decode_type, web_type):
     # 要页数从0开始
     for url in urls:
         r = requests.get(url, headers=config.http_headers).content.decode(decode_type)
-        if web_type == FindJobWebType._51job:
+        if web_type == WEBTYPE._51job:
             bs = BeautifulSoup(r, 'lxml').find("div", class_="dw_table").find_all("div", class_="el")
             for b in bs:
                 try:
@@ -153,7 +153,7 @@ def fetch_companies(urls, decode_type, web_type):
                 except Exception as e:
                     print(e, "简介解析错误")
                     pass
-        elif web_type == FindJobWebType.zhilian:
+        elif web_type == WEBTYPE.zhilian:
             bs = BeautifulSoup(r, 'lxml').find(id="newlist_list_content_table").find_all("table",class_="newlist")
             for b in bs:
                 try:
@@ -196,7 +196,7 @@ def _fetch_location_and_require_from_detail(introduce):
     web_type = introduce['来源']
     href = introduce['链接']
     company_name = introduce['公司']
-    if web_type == FindJobWebType._51job.value:
+    if web_type == WEBTYPE._51job.value:
         SPIDER_REQUIRE_COUNT += 1
         print("正在爬第{}个公司{}的要求\n{}".format(SPIDER_REQUIRE_COUNT, company_name, href))
         try:
@@ -213,7 +213,7 @@ def _fetch_location_and_require_from_detail(introduce):
             return "", ""
             pass
 
-    elif web_type == FindJobWebType.zhilian.value:
+    elif web_type == WEBTYPE.zhilian.value:
         SPIDER_REQUIRE_COUNT += 1
         print("正在爬第{}个公司{}的要求\n{}".format(SPIDER_REQUIRE_COUNT, company_name, href))
 
@@ -237,7 +237,7 @@ def _fetch_location_from_detail(h5_content, introduce):
 
     """获取公司详细地址"""
     web_type = introduce['来源']
-    if web_type == FindJobWebType._51job.value:
+    if web_type == WEBTYPE._51job.value:
         bs = BeautifulSoup(h5_content, 'lxml').find_all('p', class_="fp")
         for b in bs:
             try:
@@ -249,7 +249,7 @@ def _fetch_location_from_detail(h5_content, introduce):
                 print(e, '上班地址解析错误')
                 return introduce['地区']
                 pass
-    elif web_type == FindJobWebType.zhilian.value:
+    elif web_type == WEBTYPE.zhilian.value:
 
         bs = BeautifulSoup(h5_content, 'lxml').find('div', class_="tab-inner-cont")
 

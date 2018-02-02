@@ -11,7 +11,7 @@ def fetch_job_introduce(web_type, keywords, page_count, area):
     decode_type = ""
     #根据不同网站设置不同的地址格式
     area_need = ""
-    if web_type == FindJobWebType._51job:
+    if web_type == WEBTYPE._51job:
         url = "http://search.51job.com/list/{}0000,000000" \
               ",0000,00,9,99,{},2,{}.html? lang=c&stype=1&postchannel=0000&workyear=99&" \
               "cotype=99&degreefrom=99&jobterm=99&companysize=99&lonlat=0%2C0&radius=-1&ord_field=0" \
@@ -22,7 +22,7 @@ def fetch_job_introduce(web_type, keywords, page_count, area):
             result = f.read()
             dic = eval(result)
             area_need = '%02d' % dic[area]
-    elif web_type == FindJobWebType.zhilian:
+    elif web_type == WEBTYPE.zhilian:
         url = "http://sou.zhaopin.com/jobs/searchresult.ashx?jl={}&kw={}&isadv=0&sg=7e9e61449fd14593a5604fff81aec46a&p={}"
         decode_type = "utf-8"
     # 实际页数从1开始，所以+1
@@ -39,7 +39,7 @@ def fetch_job_introduce(web_type, keywords, page_count, area):
 ```
 def start():
     check_area_name()
-    fetch_data(web_type=FindJobWebType.all, keywords=['iOS'], area='深圳', page_count=5)
+    fetch_data(web_type= WEBTYPE.all, keywords=['iOS'], area='深圳', page_count=5)
     jobs_data_analyse()
 ```
 
