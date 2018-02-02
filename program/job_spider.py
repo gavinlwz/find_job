@@ -78,20 +78,29 @@ def _fetch_data(web_type, keywords, page_count, area):
     df.to_csv(config.jobs_data_path, mode='w', encoding='utf-8')
 
 
-    #去除简介 方便查看
+    #去除工作要求 方便查看
     df_no_require = df.drop(['要求'], axis=1)
-    df_no_require['薪酬'] = df_no_require['薪酬'].apply(lambda x: x.ljust(12))
-    df_no_require['地区'] = df_no_require['地区'].apply(lambda x:x.ljust(12))
-    df_no_require['详细地址'] = df_no_require['详细地址'].apply(lambda x: x.ljust(30))
-    df_no_require['链接'] = df_no_require['链接'].apply(lambda x: x.ljust(50))
+    df_no_require['薪酬'] = df_no_require['薪酬'].apply(_make_introduce_beautiful, min_length=12)
+    df_no_require['地区'] = df_no_require['地区'].apply(_make_introduce_beautiful, min_length=12)
+    df_no_require['详细地址'] = df_no_require['详细地址'].apply(_make_introduce_beautiful, min_length=30)
+    df_no_require['链接'] = df_no_require['链接'].apply(_make_introduce_beautiful, min_length=60)
     df_no_require.to_csv(config.jobs_data_introduce_path, mode='w', encoding='utf-8')
+# 让简介好看点  左对齐并留空
+def _make_introduce_beautiful(txt, min_length):
+
+
+    try:
+        return txt.ljust(min_length)
+    except Exception as e:
+        print(e)
+        return ''.ljust(min_length)
 
 
 # 获取工作简介
 def fetch_job_introduce(web_type, keywords, page_count, area):
     url = ""
     decode_type = ""
-    #根据不同网络设置不同的地址格式
+    #根据不同网站设置不同的地址格式
     area_need = ""
     if web_type == FindJobWebType._51job:
         url = "http://search.51job.com/list/{}0000,000000" \
@@ -141,8 +150,8 @@ def fetch_companies(urls, decode_type, web_type):
                     index = df.shape[0]
                     df.loc[index] = dic
                     # print(df)
-                except Exception:
-                    print("简介解析错误")
+                except Exception as e:
+                    print(e, "简介解析错误")
                     pass
         elif web_type == FindJobWebType.zhilian:
             bs = BeautifulSoup(r, 'lxml').find(id="newlist_list_content_table").find_all("table",class_="newlist")
@@ -165,8 +174,8 @@ def fetch_companies(urls, decode_type, web_type):
                     index = df.shape[0]
                     df.loc[index] = dic
                     # print(df)
-                except:
-                    print("简介解析错误")
+                except Exception as e:
+                    print(e, "简介解析错误")
                     pass
     return df
 
@@ -199,8 +208,8 @@ def _fetch_location_and_require_from_detail(introduce):
             require = bs.text.replace(useless_bs1.text, '').replace(useless_bs2.text, '')\
                 .replace("\t", "").replace("\n", "").replace("\r", "")
             return location_detail, require
-        except:
-            print("工作要求解析错误")
+        except Exception as e:
+            print(e, "工作要求解析错误")
             return "", ""
             pass
 
@@ -218,8 +227,8 @@ def _fetch_location_and_require_from_detail(introduce):
             require = bs.text.replace(useless_bs1.text, '').replace(useless_bs2.text, '').replace(useless_bs3.text, '')\
                 .replace("\t", "").replace("\n", "").replace("\r", "")
             return location_detail, require
-        except:
-            print("工作要求解析错误")
+        except Exception as e:
+            print(e, "工作要求解析错误")
             return "", ""
             pass
 
@@ -236,8 +245,8 @@ def _fetch_location_from_detail(h5_content, introduce):
                 if "上班地址" in location:
                     location = location.replace("上班地址：", "").replace("\t", "").replace("\n", "")
                     return location
-            except:
-                print('上班地址解析错误')
+            except Exception as e:
+                print(e, '上班地址解析错误')
                 return introduce['地区']
                 pass
     elif web_type == FindJobWebType.zhilian.value:
@@ -249,8 +258,8 @@ def _fetch_location_from_detail(h5_content, introduce):
             location = location.replace("\t", "").replace("\n", "").replace("\r", "").replace(" ", "").replace("查看职位地图", "")
             return location
 
-        except:
-            print('上班地址解析错误')
+        except Exception as e:
+            print(e, '上班地址解析错误')
             return introduce['地区']
             pass
 

@@ -46,6 +46,7 @@ def unify_salary_form(salary):
         max = int(float(salary.split('-')[1]) * multiple / month)
         return str(min), str(max), str(min) + '-' + str(max)
     except Exception as e:
+        print(e)
         return None
 
 #分析薪酬
